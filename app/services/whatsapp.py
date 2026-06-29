@@ -121,7 +121,9 @@ class WhatsAppService:
                 url = f"{self.base_url}/message/sendText/{self.instance_name}"
                 payload = {
                     "number": number,
-                    "textMessage": {"text": message}
+                    "text": message,
+                    "textMessage": {"text": message},
+                    "options": {"delay": 1200, "presence": "composing"}
                 }
                 res = await client.post(url, json=payload, headers=self.headers, timeout=10.0)
                 if res.status_code in (200, 201):
