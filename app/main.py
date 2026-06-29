@@ -12,7 +12,7 @@ import traceback
 
 from app.config import get_settings
 from app.database import AsyncSessionLocal, engine, Base
-from app.models import Usuario, Produto
+from app.models import Usuario, Produto, Banner
 from app.security import hash_password
 
 from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias, configuracoes, whatsapp, zonas, banners
