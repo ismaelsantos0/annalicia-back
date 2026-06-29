@@ -11,9 +11,15 @@ from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
+from sqlalchemy.orm import selectinload
+
 @router.get("", response_model=List[ProdutoResponse])
 async def list_produtos(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Produto).where(Produto.is_active == True))
+    result = await db.execute(
+        select(Produto)
+        .options(selectinload(Produto.categoria))
+        .where(Produto.is_active == True)
+    )
     return result.scalars().all()
 
 @router.post("", response_model=ProdutoResponse, status_code=status.HTTP_201_CREATED)

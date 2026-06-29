@@ -20,8 +20,20 @@ class UsuarioResponse(UsuarioBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class CategoriaBase(BaseModel):
+    nome: str
+
+class CategoriaCreate(CategoriaBase):
+    pass
+
+class CategoriaResponse(CategoriaBase):
+    id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
 class ProdutoBase(BaseModel):
     nome: str
+    categoria_id: Optional[UUID] = None
     descricao: Optional[str] = None
     preco: float
     estoque: int = 0
@@ -33,6 +45,7 @@ class ProdutoCreate(ProdutoBase):
 
 class ProdutoResponse(ProdutoBase):
     id: UUID
+    categoria: Optional[CategoriaResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -28,16 +28,27 @@ class Cliente(Base):
 
     pedidos = relationship("Pedido", back_populates="cliente")
 
+class Categoria(Base):
+    __tablename__ = "categorias"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nome = Column(String, unique=True, nullable=False)
+    
+    produtos = relationship("Produto", back_populates="categoria")
+
 class Produto(Base):
     __tablename__ = "produtos"
 
     id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    categoria_id = Column(PG_UUID(as_uuid=True), ForeignKey("categorias.id"), nullable=True)
     nome = Column(String, nullable=False)
     descricao = Column(String, nullable=True)
     preco = Column(Float, nullable=False)
     estoque = Column(Integer, default=0)
     imagem_url = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+
+    categoria = relationship("Categoria", back_populates="produtos")
 
 class Pedido(Base):
     __tablename__ = "pedidos"

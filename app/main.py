@@ -15,7 +15,7 @@ from app.database import AsyncSessionLocal, engine, Base
 from app.models import Usuario, Produto
 from app.security import hash_password
 
-from app.routers import auth, usuarios, produtos, pedidos, clientes
+from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s")
 log = logging.getLogger(__name__)
@@ -77,6 +77,13 @@ async def lifespan(app: FastAPI):
     log.info("[DB] Sincronizando tabelas no PostgreSQL...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE produtos ADD COLUMN categoria_id UUID REFERENCES categorias(id)"))
+            await db.commit()
+    except Exception:
+        pass # A coluna provavelmente já existe
 
     await seed_master()
     yield
@@ -115,6 +122,7 @@ app.include_router(usuarios.router)
 app.include_router(produtos.router)
 app.include_router(pedidos.router)
 app.include_router(clientes.router)
+app.include_router(categorias.router)
 
 @app.get("/health", tags=["Sistema"])
 async def health_check():
