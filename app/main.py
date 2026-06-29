@@ -198,6 +198,13 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE produtos ADD COLUMN data_criacao TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP"))
+            await db.commit()
+    except Exception:
+        pass
+
     await seed_master()
 
     try:

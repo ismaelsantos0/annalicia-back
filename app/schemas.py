@@ -59,6 +59,7 @@ class ProdutoEstoqueUpdate(BaseModel):
 
 class ProdutoResponse(ProdutoBase):
     id: UUID
+    data_criacao: Optional[datetime] = None
     categoria: Optional[CategoriaResponse] = None
 
     model_config = ConfigDict(from_attributes=True)

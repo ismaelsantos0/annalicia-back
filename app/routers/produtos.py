@@ -39,6 +39,7 @@ async def list_produtos(db: AsyncSession = Depends(get_db)):
         select(Produto)
         .options(selectinload(Produto.categoria))
         .where(Produto.is_active == True)
+        .order_by(Produto.data_criacao.desc())
     )
     return result.scalars().all()
 

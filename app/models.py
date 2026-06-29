@@ -48,6 +48,7 @@ class Produto(Base):
     estoque = Column(Integer, default=0)
     imagem_url = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    data_criacao = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
 
     categoria = relationship("Categoria", back_populates="produtos")
 
