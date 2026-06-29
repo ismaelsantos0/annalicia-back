@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -8,6 +8,7 @@ from app.database import get_db
 from app.models import Pedido, ItemPedido, Produto, Usuario, Cliente
 from app.schemas import PedidoCreate, PedidoResponse
 from app.dependencies import get_current_user
+from app.services.whatsapp import whatsapp_service
 
 router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 
@@ -23,6 +24,7 @@ async def list_pedidos(db: AsyncSession = Depends(get_db), current_user: Usuario
 @router.post("", response_model=PedidoResponse, status_code=status.HTTP_201_CREATED)
 async def create_pedido(
     pedido: PedidoCreate,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ):
     # 1. Buscar ou criar cliente
@@ -76,4 +78,19 @@ async def create_pedido(
     
     # Reload for response
     result = await db.execute(select(Pedido).options(selectinload(Pedido.itens), selectinload(Pedido.cliente)).where(Pedido.id == novo_pedido.id))
-    return result.scalar_one()
+    pedido_completo = result.scalar_one()
+
+    # Montar mensagem do WhatsApp com PIX copia e cola
+    chave_pix = "00020126580014br.gov.bcb.pix013600000000-0000-0000-0000-0000000000005204000053039865405" + str(total) + "5802BR5909Sua Loja6009Sao Paulo62070503***6304" # PIX Fake basico
+    
+    msg = f"🛍️ *Olá {cliente.nome.split()[0]}! Seu pedido foi gerado com sucesso.*\n\n"
+    msg += f"📦 *Pedido:* #{str(novo_pedido.id)[:8]}\n"
+    msg += f"💰 *Total:* R$ {total:.2f}\n\n"
+    msg += f"Para confirmar e validarmos a sua compra para separação, realize o pagamento via *PIX Copia e Cola* abaixo:\n\n"
+    msg += f"```00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-4266141740005204000053039865405{total:.2f}5802BR5909Sua Loja6009Sao Paulo62070503***6304```\n\n"
+    msg += f"Assim que o pagamento for efetuado, já autorizamos o seu pacote para envio! 💖"
+    
+    # Enviar mensagem em background
+    background_tasks.add_task(whatsapp_service.send_text_message, cliente.whatsapp, msg)
+
+    return pedido_completo
