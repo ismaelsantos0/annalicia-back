@@ -7,7 +7,7 @@ import uuid
 from app.database import get_db
 from app.models import Categoria, Usuario
 from app.schemas import CategoriaCreate, CategoriaResponse
-from app.security import get_current_user
+from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/categorias", tags=["Categorias"])
 
