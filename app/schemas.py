@@ -88,6 +88,9 @@ class ClienteResponse(ClienteBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class DisparoCreate(BaseModel):
+    mensagem: str
+
 class PedidoBase(BaseModel):
     pass
 

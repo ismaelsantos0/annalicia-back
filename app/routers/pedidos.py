@@ -55,13 +55,18 @@ async def create_pedido(
     db: AsyncSession = Depends(get_db)
 ):
     # 1. Buscar ou criar cliente
-    result = await db.execute(select(Cliente).where(Cliente.whatsapp == pedido.cliente_whatsapp))
+    # Limpar numero para manter consistencia
+    clean_whatsapp = "".join(filter(str.isdigit, pedido.cliente_whatsapp))
+    if len(clean_whatsapp) == 10 or len(clean_whatsapp) == 11:
+        clean_whatsapp = f"55{clean_whatsapp}"
+        
+    result = await db.execute(select(Cliente).where(Cliente.whatsapp == clean_whatsapp))
     cliente = result.scalar_one_or_none()
     
     if not cliente:
         cliente = Cliente(
             nome=pedido.cliente_nome,
-            whatsapp=pedido.cliente_whatsapp,
+            whatsapp=clean_whatsapp,
             endereco=pedido.cliente_endereco
         )
         db.add(cliente)
