@@ -28,9 +28,15 @@ async def login(
     user   = result.scalar_one_or_none()
 
     if not user or not user.is_active or not verify_password(form_data.password, user.password_hash):
+        user_exists = user is not None
+        is_active = user.is_active if user else False
+        pass_match = False
+        if user:
+            pass_match = verify_password(form_data.password, user.password_hash)
+            
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciais inválidas.",
+            detail=f"Credenciais inválidas. Debug: user_exists={user_exists}, is_active={is_active}, pass_match={pass_match}",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
