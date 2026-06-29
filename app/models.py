@@ -99,3 +99,17 @@ class ZonaEntrega(Base):
     bairro = Column(String, unique=True, nullable=False, index=True)
     taxa = Column(Float, default=0.0)
     ativo = Column(Boolean, default=True)
+
+class Banner(Base):
+    __tablename__ = "banners"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    badge_text = Column(String, nullable=True) # Ex: Drop de primavera ✨
+    title_highlight = Column(String, nullable=True) # Ex: Coleção Primavera:
+    title_main = Column(String, nullable=True) # Ex: Seja Você Mesma!
+    subtitle = Column(String, nullable=True) # Ex: Looks fofos, coquette...
+    image_url = Column(String, nullable=False)
+    button_text = Column(String, default="Ver Looks")
+    button_link = Column(String, default="#looks")
+    ordem = Column(Integer, default=0)
+    ativo = Column(Boolean, default=True)

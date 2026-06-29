@@ -152,3 +152,32 @@ class ZonaEntregaUpdate(BaseModel):
 class ZonaEntregaResponse(ZonaEntregaBase):
     id: UUID
     model_config = ConfigDict(from_attributes=True)
+
+class BannerBase(BaseModel):
+    badge_text: Optional[str] = None
+    title_highlight: Optional[str] = None
+    title_main: Optional[str] = None
+    subtitle: Optional[str] = None
+    image_url: str
+    button_text: str = "Ver Looks"
+    button_link: str = "#looks"
+    ordem: int = 0
+    ativo: bool = True
+
+class BannerCreate(BannerBase):
+    pass
+
+class BannerUpdate(BaseModel):
+    badge_text: Optional[str] = None
+    title_highlight: Optional[str] = None
+    title_main: Optional[str] = None
+    subtitle: Optional[str] = None
+    image_url: Optional[str] = None
+    button_text: Optional[str] = None
+    button_link: Optional[str] = None
+    ordem: Optional[int] = None
+    ativo: Optional[bool] = None
+
+class BannerResponse(BannerBase):
+    id: UUID
+    model_config = ConfigDict(from_attributes=True)

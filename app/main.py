@@ -15,7 +15,7 @@ from app.database import AsyncSessionLocal, engine, Base
 from app.models import Usuario, Produto
 from app.security import hash_password
 
-from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias, configuracoes, whatsapp, zonas
+from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias, configuracoes, whatsapp, zonas, banners
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s")
 log = logging.getLogger(__name__)
@@ -128,6 +128,27 @@ async def lifespan(app: FastAPI):
         pass
 
     await seed_master()
+
+    try:
+        async with AsyncSessionLocal() as db:
+            from app.models import Banner
+            count_banners = await db.scalar(select(sqlalchemy.func.count()).select_from(Banner))
+            if count_banners == 0:
+                log.info("[DB] Cadastrando banner inicial...")
+                banner = Banner(
+                    badge_text="Drop de primavera ✨",
+                    title_highlight="Coleção Primavera:",
+                    title_main="Seja Você Mesma!",
+                    subtitle="Looks fofos, coquette e cheios de personalidade pra você arrasar em qualquer rolê. Encontre a peça que combina com a sua vibe. 💕",
+                    image_url="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80",
+                    button_text="Ver Looks",
+                    button_link="#looks"
+                )
+                db.add(banner)
+                await db.commit()
+    except Exception as e:
+        log.warning(f"Erro ao criar banner inicial: {e}")
+
     yield
 
 app = FastAPI(
@@ -168,6 +189,7 @@ app.include_router(categorias.router)
 app.include_router(configuracoes.router)
 app.include_router(whatsapp.router)
 app.include_router(zonas.router)
+app.include_router(banners.router)
 
 @app.get("/health", tags=["Sistema"])
 async def health_check():
