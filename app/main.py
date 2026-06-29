@@ -151,14 +151,14 @@ async def lifespan(app: FastAPI):
 
     try:
         async with AsyncSessionLocal() as db:
-            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN pix_chave VARCHAR, ADD COLUMN pix_tipo VARCHAR, ADD COLUMN pix_nome_recebedor VARCHAR, ADD COLUMN pix_cidade_recebedor VARCHAR"))
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN IF NOT EXISTS pix_chave VARCHAR, ADD COLUMN IF NOT EXISTS pix_tipo VARCHAR, ADD COLUMN IF NOT EXISTS pix_nome_recebedor VARCHAR, ADD COLUMN IF NOT EXISTS pix_cidade_recebedor VARCHAR"))
             await db.commit()
     except Exception:
         pass
 
     try:
         async with AsyncSessionLocal() as db:
-            await db.execute(text("ALTER TABLE pedidos ADD COLUMN tipo_entrega VARCHAR DEFAULT 'retirada', ADD COLUMN taxa_entrega FLOAT DEFAULT 0.0, ADD COLUMN bairro_entrega VARCHAR"))
+            await db.execute(text("ALTER TABLE pedidos ADD COLUMN IF NOT EXISTS tipo_entrega VARCHAR DEFAULT 'retirada', ADD COLUMN IF NOT EXISTS taxa_entrega FLOAT DEFAULT 0.0, ADD COLUMN IF NOT EXISTS bairro_entrega VARCHAR"))
             await db.commit()
     except Exception:
         pass
@@ -179,28 +179,28 @@ async def lifespan(app: FastAPI):
 
     try:
         async with AsyncSessionLocal() as db:
-            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN whatsapp_loja VARCHAR, ADD COLUMN link_instagram VARCHAR, ADD COLUMN link_tiktok VARCHAR"))
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN IF NOT EXISTS whatsapp_loja VARCHAR, ADD COLUMN IF NOT EXISTS link_instagram VARCHAR, ADD COLUMN IF NOT EXISTS link_tiktok VARCHAR"))
             await db.commit()
     except Exception:
         pass
 
     try:
         async with AsyncSessionLocal() as db:
-            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN popup_ativo BOOLEAN DEFAULT FALSE, ADD COLUMN popup_titulo VARCHAR, ADD COLUMN popup_texto VARCHAR, ADD COLUMN popup_imagem VARCHAR, ADD COLUMN popup_botao_texto VARCHAR, ADD COLUMN popup_botao_link VARCHAR"))
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN IF NOT EXISTS popup_ativo BOOLEAN DEFAULT FALSE, ADD COLUMN IF NOT EXISTS popup_titulo VARCHAR, ADD COLUMN IF NOT EXISTS popup_texto VARCHAR, ADD COLUMN IF NOT EXISTS popup_imagem VARCHAR, ADD COLUMN IF NOT EXISTS popup_botao_texto VARCHAR, ADD COLUMN IF NOT EXISTS popup_botao_link VARCHAR"))
             await db.commit()
     except Exception:
         pass
 
     try:
         async with AsyncSessionLocal() as db:
-            await db.execute(text("ALTER TABLE banners ADD COLUMN button2_text VARCHAR, ADD COLUMN button2_link VARCHAR, ADD COLUMN cor_destaque VARCHAR"))
+            await db.execute(text("ALTER TABLE banners ADD COLUMN IF NOT EXISTS button2_text VARCHAR, ADD COLUMN IF NOT EXISTS button2_link VARCHAR, ADD COLUMN IF NOT EXISTS cor_destaque VARCHAR"))
             await db.commit()
     except Exception:
         pass
 
     try:
         async with AsyncSessionLocal() as db:
-            await db.execute(text("ALTER TABLE produtos ADD COLUMN data_criacao TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP"))
+            await db.execute(text("ALTER TABLE produtos ADD COLUMN IF NOT EXISTS data_criacao TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP"))
             await db.commit()
     except Exception:
         pass
