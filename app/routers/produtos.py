@@ -6,7 +6,7 @@ import uuid
 
 from app.database import get_db
 from app.models import Produto, Usuario
-from app.schemas import ProdutoCreate, ProdutoResponse
+from app.schemas import ProdutoCreate, ProdutoResponse, ProdutoEstoqueUpdate
 from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
@@ -61,3 +61,30 @@ async def delete_produto(
     produto.is_active = False
     await db.commit()
     return None
+
+@router.patch("/{produto_id}/estoque", response_model=ProdutoResponse)
+async def update_estoque(
+    produto_id: uuid.UUID,
+    update_data: ProdutoEstoqueUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso restrito")
+        
+    result = await db.execute(select(Produto).where(Produto.id == produto_id))
+    produto = result.scalar_one_or_none()
+    
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+        
+    produto.estoque = update_data.estoque
+    await db.commit()
+    
+    # Recarrega para resposta
+    res = await db.execute(
+        select(Produto)
+        .options(selectinload(Produto.categoria))
+        .where(Produto.id == produto_id)
+    )
+    return res.scalar_one()

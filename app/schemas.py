@@ -43,6 +43,9 @@ class ProdutoBase(BaseModel):
 class ProdutoCreate(ProdutoBase):
     pass
 
+class ProdutoEstoqueUpdate(BaseModel):
+    estoque: int
+
 class ProdutoResponse(ProdutoBase):
     id: UUID
     categoria: Optional[CategoriaResponse] = None
