@@ -34,8 +34,14 @@ async def create_produto(
     novo_produto = Produto(**produto.model_dump())
     db.add(novo_produto)
     await db.commit()
-    await db.refresh(novo_produto)
-    return novo_produto
+    
+    # Recarrega o produto com a categoria para o response_model
+    result = await db.execute(
+        select(Produto)
+        .options(selectinload(Produto.categoria))
+        .where(Produto.id == novo_produto.id)
+    )
+    return result.scalar_one()
 
 @router.delete("/{produto_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_produto(
