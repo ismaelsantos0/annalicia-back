@@ -52,3 +52,15 @@ async def disparar_mensagens(
     background_tasks.add_task(disparar_mensagens_bg, numeros_unicos, disparo.mensagem)
     
     return {"message": f"Disparo iniciado para {len(numeros_unicos)} contatos. Isso ocorrerá em segundo plano."}
+
+@router.delete("/todos")
+async def delete_all_clientes(db: AsyncSession = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    from sqlalchemy import text
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso restrito")
+        
+    await db.execute(text("DELETE FROM itens_pedido"))
+    await db.execute(text("DELETE FROM pedidos"))
+    await db.execute(text("DELETE FROM clientes"))
+    await db.commit()
+    return {"message": "Todos os clientes e pedidos foram deletados com sucesso."}
