@@ -99,7 +99,7 @@ async def create_pedido(
             nome=config.pix_nome_recebedor,
             cidade=config.pix_cidade_recebedor,
             valor=total,
-            txid=str(novo_pedido.id)[:10]
+            txid=f"PED{pedido_completo.numero}" if pedido_completo.numero else str(novo_pedido.id)[:10]
         )
     else:
         br_code = "CHAVE PIX NÃO CONFIGURADA NO PAINEL ADMIN"
@@ -107,8 +107,10 @@ async def create_pedido(
     # Injeta na resposta da API
     pedido_completo.pix_copia_cola = br_code
 
+    pedido_num_str = str(pedido_completo.numero).zfill(4) if pedido_completo.numero else str(novo_pedido.id)[:8]
+
     msg = f"🛍️ *Olá {cliente.nome.split()[0]}! Seu pedido foi gerado com sucesso.*\n\n"
-    msg += f"📦 *Pedido:* #{str(novo_pedido.id)[:8]}\n"
+    msg += f"📦 *Pedido:* #{pedido_num_str}\n"
     msg += f"💰 *Total:* R$ {total:.2f}\n"
     
     if pedido.tipo_entrega == "entrega":

@@ -54,18 +54,18 @@ class Pedido(Base):
     __tablename__ = "pedidos"
 
     id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    cliente_id = Column(PG_UUID(as_uuid=True), ForeignKey("clientes.id"), nullable=False)
-    usuario_id = Column(PG_UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True) # admin que gerou, se houver
-    status = Column(String, default="pendente") # pendente, pago, enviado, cancelado
+    numero = Column(Integer, unique=True, index=True)
+    usuario_id = Column(PG_UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)
+    cliente_id = Column(PG_UUID(as_uuid=True), ForeignKey("clientes.id"), nullable=True)
+    status = Column(String, default="pendente")
     data_criacao = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
-    total = Column(Float, default=0.0)
-    
-    tipo_entrega = Column(String, default="retirada") # retirada ou entrega
-    taxa_entrega = Column(Float, default=0.0)
+    total = Column(Float, nullable=False)
+    tipo_entrega = Column(String, default="retirada")
     bairro_entrega = Column(String, nullable=True)
+    taxa_entrega = Column(Float, default=0.0)
 
-    cliente = relationship("Cliente", back_populates="pedidos")
     usuario = relationship("Usuario", back_populates="pedidos")
+    cliente = relationship("Cliente", back_populates="pedidos")
     itens = relationship("ItemPedido", back_populates="pedido", cascade="all, delete-orphan")
 
 class ItemPedido(Base):
@@ -90,6 +90,7 @@ class Configuracao(Base):
     pix_tipo = Column(String, nullable=True) # cpf, cnpj, email, telefone, aleatoria
     pix_nome_recebedor = Column(String, nullable=True)
     pix_cidade_recebedor = Column(String, nullable=True)
+    whatsapp_loja = Column(String, nullable=True)
 
 class ZonaEntrega(Base):
     __tablename__ = "zonas_entrega"

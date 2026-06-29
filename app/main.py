@@ -113,6 +113,20 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE pedidos ADD COLUMN numero SERIAL UNIQUE"))
+            await db.commit()
+    except Exception:
+        pass
+
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN whatsapp_loja VARCHAR"))
+            await db.commit()
+    except Exception:
+        pass
+
     await seed_master()
     yield
 

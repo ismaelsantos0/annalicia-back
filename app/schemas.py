@@ -90,6 +90,7 @@ class PedidoCreate(PedidoBase):
 
 class PedidoResponse(PedidoBase):
     id: UUID
+    numero: Optional[int] = None
     cliente_id: UUID
     usuario_id: Optional[UUID] = None
     status: str
@@ -101,6 +102,8 @@ class PedidoResponse(PedidoBase):
     itens: List[ItemPedidoResponse]
     cliente: ClienteResponse
     pix_copia_cola: Optional[str] = None
+    taxa: Optional[float] = None
+    ativo: Optional[bool] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -112,6 +115,18 @@ class ConfiguracaoBase(BaseModel):
     pix_nome_recebedor: Optional[str] = None
     pix_cidade_recebedor: Optional[str] = None
 
+class ConfiguracaoResponse(BaseModel):
+    id: int
+    estoque_critico: int
+    estoque_atencao: int
+    pix_chave: Optional[str] = None
+    pix_tipo: Optional[str] = None
+    pix_nome_recebedor: Optional[str] = None
+    pix_cidade_recebedor: Optional[str] = None
+    whatsapp_loja: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
 class ConfiguracaoUpdate(BaseModel):
     estoque_critico: Optional[int] = None
     estoque_atencao: Optional[int] = None
@@ -119,11 +134,7 @@ class ConfiguracaoUpdate(BaseModel):
     pix_tipo: Optional[str] = None
     pix_nome_recebedor: Optional[str] = None
     pix_cidade_recebedor: Optional[str] = None
-    pass
-
-class ConfiguracaoResponse(ConfiguracaoBase):
-    id: int
-    model_config = ConfigDict(from_attributes=True)
+    whatsapp_loja: Optional[str] = None
 
 class ZonaEntregaBase(BaseModel):
     bairro: str
