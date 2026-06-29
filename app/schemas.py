@@ -151,6 +151,14 @@ class ConfiguracaoResponse(BaseModel):
     pix_nome_recebedor: Optional[str] = None
     pix_cidade_recebedor: Optional[str] = None
     whatsapp_loja: Optional[str] = None
+    link_instagram: Optional[str] = None
+    link_tiktok: Optional[str] = None
+    popup_ativo: bool = False
+    popup_titulo: Optional[str] = None
+    popup_texto: Optional[str] = None
+    popup_imagem: Optional[str] = None
+    popup_botao_texto: Optional[str] = None
+    popup_botao_link: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
