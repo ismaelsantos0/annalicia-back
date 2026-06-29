@@ -107,6 +107,20 @@ async def seed_master() -> None:
             await db.commit()
 
         try:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN nome_loja VARCHAR DEFAULT 'Annalicia Modas'"))
+            await db.commit()
+            log.info("[DB] Coluna nome_loja adicionada")
+        except:
+            await db.rollback()
+
+        try:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN logo_url VARCHAR"))
+            await db.commit()
+            log.info("[DB] Coluna logo_url adicionada")
+        except:
+            await db.rollback()
+
+        try:
             await db.execute(text("ALTER TABLE configuracoes ADD COLUMN texto_frete VARCHAR DEFAULT 'Frete grátis acima de R$ 199'"))
             await db.commit()
             log.info("[DB] Coluna texto_frete adicionada")
