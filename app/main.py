@@ -85,6 +85,13 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass # A coluna provavelmente já existe
 
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE pedidos ADD COLUMN cliente_id UUID REFERENCES clientes(id)"))
+            await db.commit()
+    except Exception:
+        pass
+
     await seed_master()
     yield
 
