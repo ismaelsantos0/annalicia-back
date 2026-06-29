@@ -92,6 +92,13 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE pedidos ALTER COLUMN usuario_id DROP NOT NULL"))
+            await db.commit()
+    except Exception:
+        pass
+
     await seed_master()
     yield
 
