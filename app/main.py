@@ -127,6 +127,20 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN popup_ativo BOOLEAN DEFAULT FALSE, ADD COLUMN popup_titulo VARCHAR, ADD COLUMN popup_texto VARCHAR, ADD COLUMN popup_imagem VARCHAR, ADD COLUMN popup_botao_texto VARCHAR, ADD COLUMN popup_botao_link VARCHAR"))
+            await db.commit()
+    except Exception:
+        pass
+
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE banners ADD COLUMN button2_text VARCHAR, ADD COLUMN button2_link VARCHAR, ADD COLUMN cor_destaque VARCHAR"))
+            await db.commit()
+    except Exception:
+        pass
+
     await seed_master()
 
     try:

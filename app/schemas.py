@@ -117,6 +117,12 @@ class ConfiguracaoBase(BaseModel):
     whatsapp_loja: Optional[str] = None
     link_instagram: Optional[str] = None
     link_tiktok: Optional[str] = None
+    popup_ativo: bool = False
+    popup_titulo: Optional[str] = None
+    popup_texto: Optional[str] = None
+    popup_imagem: Optional[str] = None
+    popup_botao_texto: Optional[str] = None
+    popup_botao_link: Optional[str] = None
 
 class ConfiguracaoResponse(BaseModel):
     id: int
@@ -140,10 +146,16 @@ class ConfiguracaoUpdate(BaseModel):
     whatsapp_loja: Optional[str] = None
     link_instagram: Optional[str] = None
     link_tiktok: Optional[str] = None
+    popup_ativo: Optional[bool] = None
+    popup_titulo: Optional[str] = None
+    popup_texto: Optional[str] = None
+    popup_imagem: Optional[str] = None
+    popup_botao_texto: Optional[str] = None
+    popup_botao_link: Optional[str] = None
 
 class ZonaEntregaBase(BaseModel):
     bairro: str
-    taxa: float
+    taxa: float = 0.0
     ativo: bool = True
 
 class ZonaEntregaCreate(ZonaEntregaBase):
@@ -166,8 +178,11 @@ class BannerBase(BaseModel):
     image_url: str
     button_text: str = "Ver Looks"
     button_link: str = "#looks"
-    ordem: int = 0
+    button2_text: Optional[str] = None
+    button2_link: Optional[str] = None
+    cor_destaque: Optional[str] = None
     ativo: bool = True
+    ordem: int = 0
 
 class BannerCreate(BannerBase):
     pass
@@ -180,8 +195,11 @@ class BannerUpdate(BaseModel):
     image_url: Optional[str] = None
     button_text: Optional[str] = None
     button_link: Optional[str] = None
-    ordem: Optional[int] = None
+    button2_text: Optional[str] = None
+    button2_link: Optional[str] = None
+    cor_destaque: Optional[str] = None
     ativo: Optional[bool] = None
+    ordem: Optional[int] = None
 
 class BannerResponse(BannerBase):
     id: UUID

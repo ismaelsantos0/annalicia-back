@@ -93,6 +93,12 @@ class Configuracao(Base):
     whatsapp_loja = Column(String, nullable=True)
     link_instagram = Column(String, nullable=True)
     link_tiktok = Column(String, nullable=True)
+    popup_ativo = Column(Boolean, default=False)
+    popup_titulo = Column(String, nullable=True)
+    popup_texto = Column(String, nullable=True)
+    popup_imagem = Column(String, nullable=True)
+    popup_botao_texto = Column(String, nullable=True)
+    popup_botao_link = Column(String, nullable=True)
 
 class ZonaEntrega(Base):
     __tablename__ = "zonas_entrega"
@@ -106,12 +112,15 @@ class Banner(Base):
     __tablename__ = "banners"
 
     id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    badge_text = Column(String, nullable=True) # Ex: Drop de primavera ✨
-    title_highlight = Column(String, nullable=True) # Ex: Coleção Primavera:
-    title_main = Column(String, nullable=True) # Ex: Seja Você Mesma!
-    subtitle = Column(String, nullable=True) # Ex: Looks fofos, coquette...
-    image_url = Column(String, nullable=False)
-    button_text = Column(String, default="Ver Looks")
-    button_link = Column(String, default="#looks")
-    ordem = Column(Integer, default=0)
+    badge_text = Column(String, nullable=True)
+    title_highlight = Column(String, nullable=True)
+    title_main = Column(String, nullable=True)
+    subtitle = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
+    button_text = Column(String, nullable=True)
+    button_link = Column(String, nullable=True)
+    button2_text = Column(String, nullable=True)
+    button2_link = Column(String, nullable=True)
+    cor_destaque = Column(String, nullable=True)
     ativo = Column(Boolean, default=True)
+    ordem = Column(Integer, default=0)
