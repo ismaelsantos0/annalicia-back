@@ -1,0 +1,53 @@
+from sqlalchemy import Column, String, Boolean, Integer, Float, ForeignKey, DateTime
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import relationship
+import uuid
+import datetime
+
+from app.database import Base
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    username = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    role = Column(String, default="standard")
+    is_active = Column(Boolean, default=True)
+
+    pedidos = relationship("Pedido", back_populates="usuario")
+
+class Produto(Base):
+    __tablename__ = "produtos"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nome = Column(String, nullable=False)
+    descricao = Column(String, nullable=True)
+    preco = Column(Float, nullable=False)
+    estoque = Column(Integer, default=0)
+    imagem_url = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True)
+
+class Pedido(Base):
+    __tablename__ = "pedidos"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    usuario_id = Column(PG_UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False)
+    status = Column(String, default="pendente") # pendente, pago, enviado, cancelado
+    data_criacao = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    total = Column(Float, default=0.0)
+
+    usuario = relationship("Usuario", back_populates="pedidos")
+    itens = relationship("ItemPedido", back_populates="pedido", cascade="all, delete-orphan")
+
+class ItemPedido(Base):
+    __tablename__ = "itens_pedido"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    pedido_id = Column(PG_UUID(as_uuid=True), ForeignKey("pedidos.id"), nullable=False)
+    produto_id = Column(PG_UUID(as_uuid=True), ForeignKey("produtos.id"), nullable=False)
+    quantidade = Column(Integer, nullable=False)
+    preco_unitario = Column(Float, nullable=False)
+
+    pedido = relationship("Pedido", back_populates="itens")
+    produto = relationship("Produto")
