@@ -6,7 +6,7 @@ import uuid
 
 from app.database import get_db
 from app.models import Produto, Usuario
-from app.schemas import ProdutoCreate, ProdutoResponse, ProdutoEstoqueUpdate
+from app.schemas import ProdutoCreate, ProdutoResponse, ProdutoEstoqueUpdate, ProdutoUpdate
 from app.dependencies import get_current_user
 from pydantic import BaseModel
 
@@ -63,6 +63,30 @@ async def create_produto(
         .where(Produto.id == novo_produto.id)
     )
     return result.scalar_one()
+
+@router.patch("/{produto_id}", response_model=ProdutoResponse)
+async def update_produto(
+    produto_id: uuid.UUID,
+    update_data: ProdutoUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso restrito")
+    result = await db.execute(select(Produto).where(Produto.id == produto_id))
+    produto = result.scalar_one_or_none()
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    data = update_data.model_dump(exclude_unset=True)
+    for field, value in data.items():
+        setattr(produto, field, value)
+    await db.commit()
+    res = await db.execute(
+        select(Produto)
+        .options(selectinload(Produto.categoria))
+        .where(Produto.id == produto_id)
+    )
+    return res.scalar_one()
 
 @router.delete("/{produto_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_produto(
