@@ -23,10 +23,13 @@ async def get_whatsapp_status(current_user: Usuario = Depends(get_current_user))
 async def get_whatsapp_qrcode(current_user: Usuario = Depends(get_current_user)):
     if current_user.role != "master":
         raise HTTPException(status_code=403, detail="Sem permissão")
-    qr = await whatsapp_service.get_qr_code()
-    if qr:
-        return QRCodeResponse(base64=qr)
-    raise HTTPException(status_code=400, detail="Não foi possível gerar o QR Code. O WhatsApp já pode estar conectado ou a API não respondeu.")
+    try:
+        qr = await whatsapp_service.get_qr_code()
+        if qr:
+            return QRCodeResponse(base64=qr)
+        raise HTTPException(status_code=400, detail="Não foi possível gerar o QR Code (Resposta vazia).")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout_whatsapp(current_user: Usuario = Depends(get_current_user)):

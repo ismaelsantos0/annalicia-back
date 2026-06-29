@@ -63,13 +63,20 @@ class WhatsAppService:
 
     async def get_qr_code(self):
         if not self.is_configured:
-            return None
+            raise Exception("Variáveis EVOLUTION_API_URL ou EVOLUTION_API_KEY não estão configuradas no Backend.")
             
         # Tenta pegar status primeiro
         state = await self.get_instance_state()
-        if state["status"] == "not_created":
+        if state.get("status") == "error":
+            raise Exception(f"Erro ao checar status: {state.get('detail')}")
+
+        if state.get("status") == "not_created":
             # Cria a instância
-            await self.create_instance()
+            created = await self.create_instance()
+            if not created:
+                raise Exception("Falha ao criar a instância no Evolution API.")
+            if "qrcode" in created and "base64" in created["qrcode"]:
+                return created["qrcode"]["base64"]
             
         async with httpx.AsyncClient() as client:
             try:
@@ -77,12 +84,15 @@ class WhatsAppService:
                 res = await client.get(url, headers=self.headers, timeout=10.0)
                 if res.status_code == 200:
                     data = res.json()
-                    # Retorna o QR Code base64 se existir
-                    return data.get("base64")
-                return None
+                    # Evolution API as vezes retorna { "base64": "..." }
+                    if "base64" in data:
+                        return data["base64"]
+                    # Ou as vezes no criar ele retorna direto
+                    return None
+                raise Exception(f"Erro ao conectar (HTTP {res.status_code}): {res.text}")
             except Exception as e:
                 log.error(f"Erro ao pegar QR Code do WhatsApp: {e}")
-                return None
+                raise Exception(f"Erro de rede ao conectar no Evolution: {str(e)}")
                 
     async def logout_instance(self):
         if not self.is_configured:
