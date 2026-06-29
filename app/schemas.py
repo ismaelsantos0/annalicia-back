@@ -32,9 +32,10 @@ class CategoriaResponse(CategoriaBase):
     model_config = ConfigDict(from_attributes=True)
 
 class ProdutoBase(BaseModel):
-    nome: str
     categoria_id: Optional[UUID] = None
+    nome: str
     descricao: Optional[str] = None
+    preco_custo: float = 0.0
     preco: float
     estoque: int = 0
     imagem_url: Optional[str] = None
@@ -42,6 +43,16 @@ class ProdutoBase(BaseModel):
 
 class ProdutoCreate(ProdutoBase):
     pass
+
+class ProdutoUpdate(BaseModel):
+    categoria_id: Optional[UUID] = None
+    nome: Optional[str] = None
+    descricao: Optional[str] = None
+    preco_custo: Optional[float] = None
+    preco: Optional[float] = None
+    estoque: Optional[int] = None
+    imagem_url: Optional[str] = None
+    is_active: Optional[bool] = None
 
 class ProdutoEstoqueUpdate(BaseModel):
     estoque: int

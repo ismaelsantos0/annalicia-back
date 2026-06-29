@@ -13,6 +13,32 @@ from app.utils.pix import generate_pix_brcode
 
 router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 
+@router.get("/dashboard/stats")
+async def get_dashboard_stats(db: AsyncSession = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso negado")
+    
+    query = select(Pedido).options(selectinload(Pedido.itens).selectinload(ItemPedido.produto))
+    result = await db.execute(query)
+    pedidos = result.scalars().all()
+    
+    faturamento_total = 0.0
+    custo_total = 0.0
+    total_pedidos = len(pedidos)
+    
+    for p in pedidos:
+        faturamento_total += p.total
+        for item in p.itens:
+            custo = item.produto.preco_custo if item.produto and getattr(item.produto, 'preco_custo', None) else 0.0
+            custo_total += (custo * item.quantidade)
+            
+    return {
+        "faturamento_total": faturamento_total,
+        "custo_total": custo_total,
+        "lucro_bruto": faturamento_total - custo_total,
+        "total_pedidos": total_pedidos
+    }
+
 @router.get("", response_model=List[PedidoResponse])
 async def list_pedidos(db: AsyncSession = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     query = select(Pedido).options(selectinload(Pedido.itens), selectinload(Pedido.cliente))

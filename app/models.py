@@ -43,6 +43,7 @@ class Produto(Base):
     categoria_id = Column(PG_UUID(as_uuid=True), ForeignKey("categorias.id"), nullable=True)
     nome = Column(String, nullable=False)
     descricao = Column(String, nullable=True)
+    preco_custo = Column(Float, default=0.0)
     preco = Column(Float, nullable=False)
     estoque = Column(Integer, default=0)
     imagem_url = Column(String, nullable=True)

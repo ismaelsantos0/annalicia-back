@@ -172,6 +172,13 @@ async def lifespan(app: FastAPI):
 
     try:
         async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE produtos ADD COLUMN preco_custo FLOAT DEFAULT 0.0"))
+            await db.commit()
+    except Exception:
+        pass
+
+    try:
+        async with AsyncSessionLocal() as db:
             await db.execute(text("ALTER TABLE configuracoes ADD COLUMN whatsapp_loja VARCHAR, ADD COLUMN link_instagram VARCHAR, ADD COLUMN link_tiktok VARCHAR"))
             await db.commit()
     except Exception:
