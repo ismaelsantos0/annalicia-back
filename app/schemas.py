@@ -108,12 +108,15 @@ class PedidoResponse(PedidoBase):
     model_config = ConfigDict(from_attributes=True)
 
 class ConfiguracaoBase(BaseModel):
-    estoque_critico: int
-    estoque_atencao: int
+    estoque_critico: int = 1
+    estoque_atencao: int = 3
     pix_chave: Optional[str] = None
     pix_tipo: Optional[str] = None
     pix_nome_recebedor: Optional[str] = None
     pix_cidade_recebedor: Optional[str] = None
+    whatsapp_loja: Optional[str] = None
+    link_instagram: Optional[str] = None
+    link_tiktok: Optional[str] = None
 
 class ConfiguracaoResponse(BaseModel):
     id: int
@@ -135,6 +138,8 @@ class ConfiguracaoUpdate(BaseModel):
     pix_nome_recebedor: Optional[str] = None
     pix_cidade_recebedor: Optional[str] = None
     whatsapp_loja: Optional[str] = None
+    link_instagram: Optional[str] = None
+    link_tiktok: Optional[str] = None
 
 class ZonaEntregaBase(BaseModel):
     bairro: str

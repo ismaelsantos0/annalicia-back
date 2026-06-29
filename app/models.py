@@ -91,6 +91,8 @@ class Configuracao(Base):
     pix_nome_recebedor = Column(String, nullable=True)
     pix_cidade_recebedor = Column(String, nullable=True)
     whatsapp_loja = Column(String, nullable=True)
+    link_instagram = Column(String, nullable=True)
+    link_tiktok = Column(String, nullable=True)
 
 class ZonaEntrega(Base):
     __tablename__ = "zonas_entrega"
