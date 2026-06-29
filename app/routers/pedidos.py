@@ -156,8 +156,23 @@ async def create_pedido(
     else:
         msg += f"Assim que o pagamento for efetuado, já autorizamos o seu pacote para envio! 💖"
     
-    # Enviar mensagem em background
+    # Enviar mensagem em background para o cliente
     background_tasks.add_task(whatsapp_service.send_text_message, cliente.whatsapp, msg)
+
+    # Notificar o lojista
+    if config and config.whatsapp_loja:
+        msg_admin = f"🚨 *NOVO PEDIDO RECEBIDO!* 🚨\n\n"
+        msg_admin += f"📦 *Pedido:* #{pedido_num_str}\n"
+        msg_admin += f"👤 *Cliente:* {cliente.nome}\n"
+        msg_admin += f"📱 *WhatsApp:* {cliente.whatsapp}\n"
+        msg_admin += f"💰 *Total:* R$ {total:.2f}\n"
+        if pedido.tipo_entrega == "entrega":
+            msg_admin += f"🛵 *Modo:* Entrega - {pedido.bairro_entrega}\n"
+        else:
+            msg_admin += f"🏪 *Modo:* Retirada na Loja\n"
+        msg_admin += f"\nAcesse o painel para gerenciar este pedido."
+        
+        background_tasks.add_task(whatsapp_service.send_text_message, config.whatsapp_loja, msg_admin)
 
     return pedido_completo
 
