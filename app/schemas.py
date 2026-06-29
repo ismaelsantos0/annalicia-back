@@ -141,6 +141,8 @@ class ConfiguracaoBase(BaseModel):
     popup_imagem: Optional[str] = None
     popup_botao_texto: Optional[str] = None
     popup_botao_link: Optional[str] = None
+    texto_frete: Optional[str] = None
+    texto_brinde: Optional[str] = None
 
 class ConfiguracaoResponse(BaseModel):
     id: int
@@ -159,6 +161,8 @@ class ConfiguracaoResponse(BaseModel):
     popup_imagem: Optional[str] = None
     popup_botao_texto: Optional[str] = None
     popup_botao_link: Optional[str] = None
+    texto_frete: Optional[str] = None
+    texto_brinde: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -178,6 +182,8 @@ class ConfiguracaoUpdate(BaseModel):
     popup_imagem: Optional[str] = None
     popup_botao_texto: Optional[str] = None
     popup_botao_link: Optional[str] = None
+    texto_frete: Optional[str] = None
+    texto_brinde: Optional[str] = None
 
 class ZonaEntregaBase(BaseModel):
     bairro: str

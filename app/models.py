@@ -103,6 +103,8 @@ class Configuracao(Base):
     popup_imagem = Column(String, nullable=True)
     popup_botao_texto = Column(String, nullable=True)
     popup_botao_link = Column(String, nullable=True)
+    texto_frete = Column(String, default="Frete grátis acima de R$ 199")
+    texto_brinde = Column(String, default="Brinde fofo no pedido")
 
 class ZonaEntrega(Base):
     __tablename__ = "zonas_entrega"

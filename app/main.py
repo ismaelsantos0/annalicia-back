@@ -106,6 +106,20 @@ async def seed_master() -> None:
             db.add(b2)
             await db.commit()
 
+        try:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN texto_frete VARCHAR DEFAULT 'Frete grátis acima de R$ 199'"))
+            await db.commit()
+            log.info("[DB] Coluna texto_frete adicionada")
+        except:
+            await db.rollback()
+            
+        try:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN texto_brinde VARCHAR DEFAULT 'Brinde fofo no pedido'"))
+            await db.commit()
+            log.info("[DB] Coluna texto_brinde adicionada")
+        except:
+            await db.rollback()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import asyncio
