@@ -111,7 +111,7 @@ class PedidoStatusUpdate(BaseModel):
 class PedidoResponse(PedidoBase):
     id: UUID
     numero: Optional[int] = None
-    cliente_id: UUID
+    cliente_id: Optional[UUID] = None
     usuario_id: Optional[UUID] = None
     status: str
     data_criacao: datetime
@@ -120,7 +120,7 @@ class PedidoResponse(PedidoBase):
     taxa_entrega: float
     bairro_entrega: Optional[str] = None
     itens: List[ItemPedidoResponse]
-    cliente: ClienteResponse
+    cliente: Optional[ClienteResponse] = None
     pix_copia_cola: Optional[str] = None
     taxa: Optional[float] = None
     ativo: Optional[bool] = None
