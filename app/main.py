@@ -99,6 +99,13 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN pix_chave VARCHAR, ADD COLUMN pix_tipo VARCHAR, ADD COLUMN pix_nome_recebedor VARCHAR, ADD COLUMN pix_cidade_recebedor VARCHAR"))
+            await db.commit()
+    except Exception:
+        pass
+
     await seed_master()
     yield
 

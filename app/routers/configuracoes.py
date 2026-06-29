@@ -35,10 +35,10 @@ async def update_configuracao(
     config = result.scalar_one_or_none()
     
     if not config:
-        config = Configuracao(id=1, **update_data.model_dump())
+        config = Configuracao(id=1, **update_data.model_dump(exclude_unset=True))
         db.add(config)
     else:
-        for key, value in update_data.model_dump().items():
+        for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(config, key, value)
             
     await db.commit()

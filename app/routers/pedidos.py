@@ -5,10 +5,11 @@ from sqlalchemy.orm import selectinload
 from typing import List
 
 from app.database import get_db
-from app.models import Pedido, ItemPedido, Produto, Usuario, Cliente
+from app.models import Pedido, ItemPedido, Produto, Usuario, Cliente, Configuracao
 from app.schemas import PedidoCreate, PedidoResponse
 from app.dependencies import get_current_user
 from app.services.whatsapp import whatsapp_service
+from app.utils.pix import generate_pix_brcode
 
 router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 
@@ -80,14 +81,29 @@ async def create_pedido(
     result = await db.execute(select(Pedido).options(selectinload(Pedido.itens), selectinload(Pedido.cliente)).where(Pedido.id == novo_pedido.id))
     pedido_completo = result.scalar_one()
 
-    # Montar mensagem do WhatsApp com PIX copia e cola
-    chave_pix = "00020126580014br.gov.bcb.pix013600000000-0000-0000-0000-0000000000005204000053039865405" + str(total) + "5802BR5909Sua Loja6009Sao Paulo62070503***6304" # PIX Fake basico
+    # Buscar configuração do PIX
+    conf_result = await db.execute(select(Configuracao).where(Configuracao.id == 1))
+    config = conf_result.scalar_one_or_none()
+
+    if config and config.pix_chave and config.pix_nome_recebedor and config.pix_cidade_recebedor:
+        br_code = generate_pix_brcode(
+            chave=config.pix_chave,
+            nome=config.pix_nome_recebedor,
+            cidade=config.pix_cidade_recebedor,
+            valor=total,
+            txid=str(novo_pedido.id)[:10]
+        )
+    else:
+        br_code = "CHAVE PIX NÃO CONFIGURADA NO PAINEL ADMIN"
     
+    # Injeta na resposta da API
+    pedido_completo.pix_copia_cola = br_code
+
     msg = f"🛍️ *Olá {cliente.nome.split()[0]}! Seu pedido foi gerado com sucesso.*\n\n"
     msg += f"📦 *Pedido:* #{str(novo_pedido.id)[:8]}\n"
     msg += f"💰 *Total:* R$ {total:.2f}\n\n"
     msg += f"Para confirmar e validarmos a sua compra para separação, realize o pagamento via *PIX Copia e Cola* abaixo:\n\n"
-    msg += f"```00020126580014br.gov.bcb.pix0136123e4567-e89b-12d3-a456-4266141740005204000053039865405{total:.2f}5802BR5909Sua Loja6009Sao Paulo62070503***6304```\n\n"
+    msg += f"```{br_code}```\n\n"
     msg += f"Assim que o pagamento for efetuado, já autorizamos o seu pacote para envio! 💖"
     
     # Enviar mensagem em background

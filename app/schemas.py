@@ -94,14 +94,25 @@ class PedidoResponse(PedidoBase):
     total: float
     itens: List[ItemPedidoResponse]
     cliente: ClienteResponse
+    pix_copia_cola: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
 class ConfiguracaoBase(BaseModel):
     estoque_critico: int
     estoque_atencao: int
+    pix_chave: Optional[str] = None
+    pix_tipo: Optional[str] = None
+    pix_nome_recebedor: Optional[str] = None
+    pix_cidade_recebedor: Optional[str] = None
 
-class ConfiguracaoUpdate(ConfiguracaoBase):
+class ConfiguracaoUpdate(BaseModel):
+    estoque_critico: Optional[int] = None
+    estoque_atencao: Optional[int] = None
+    pix_chave: Optional[str] = None
+    pix_tipo: Optional[str] = None
+    pix_nome_recebedor: Optional[str] = None
+    pix_cidade_recebedor: Optional[str] = None
     pass
 
 class ConfiguracaoResponse(ConfiguracaoBase):

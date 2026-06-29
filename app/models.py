@@ -82,3 +82,7 @@ class Configuracao(Base):
     id = Column(Integer, primary_key=True, default=1)
     estoque_critico = Column(Integer, default=1)
     estoque_atencao = Column(Integer, default=3)
+    pix_chave = Column(String, nullable=True)
+    pix_tipo = Column(String, nullable=True) # cpf, cnpj, email, telefone, aleatoria
+    pix_nome_recebedor = Column(String, nullable=True)
+    pix_cidade_recebedor = Column(String, nullable=True)
