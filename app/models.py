@@ -52,11 +52,13 @@ class Produto(Base):
 
     categoria = relationship("Categoria", back_populates="produtos")
 
+from sqlalchemy import FetchedValue
+
 class Pedido(Base):
     __tablename__ = "pedidos"
 
     id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    numero = Column(Integer, unique=True, index=True)
+    numero = Column(Integer, server_default=FetchedValue(), unique=True, index=True)
     usuario_id = Column(PG_UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True)
     cliente_id = Column(PG_UUID(as_uuid=True), ForeignKey("clientes.id"), nullable=True)
     status = Column(String, default="pendente")
