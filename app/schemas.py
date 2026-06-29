@@ -97,3 +97,13 @@ class PedidoResponse(PedidoBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ConfiguracaoBase(BaseModel):
+    estoque_critico: int
+    estoque_atencao: int
+
+class ConfiguracaoUpdate(ConfiguracaoBase):
+    pass
+
+class ConfiguracaoResponse(ConfiguracaoBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)

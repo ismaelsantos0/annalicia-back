@@ -75,3 +75,10 @@ class ItemPedido(Base):
 
     pedido = relationship("Pedido", back_populates="itens")
     produto = relationship("Produto")
+
+class Configuracao(Base):
+    __tablename__ = "configuracoes"
+
+    id = Column(Integer, primary_key=True, default=1)
+    estoque_critico = Column(Integer, default=1)
+    estoque_atencao = Column(Integer, default=3)

@@ -15,7 +15,7 @@ from app.database import AsyncSessionLocal, engine, Base
 from app.models import Usuario, Produto
 from app.security import hash_password
 
-from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias
+from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias, configuracoes
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s")
 log = logging.getLogger(__name__)
@@ -123,6 +123,7 @@ app.include_router(produtos.router)
 app.include_router(pedidos.router)
 app.include_router(clientes.router)
 app.include_router(categorias.router)
+app.include_router(configuracoes.router)
 
 @app.get("/health", tags=["Sistema"])
 async def health_check():
