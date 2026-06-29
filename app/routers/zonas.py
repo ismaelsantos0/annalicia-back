@@ -16,6 +16,32 @@ async def list_zonas(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(ZonaEntrega).where(ZonaEntrega.ativo == True).order_by(ZonaEntrega.bairro))
     return result.scalars().all()
 
+@router.post("/seed-boa-vista")
+async def seed_boa_vista(db: AsyncSession = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso restrito")
+        
+    bairros = [
+        "Aeroporto", "Alvorada", "Araceli Souto Maior", "Asa Branca", "Bela Vista", 
+        "Buritis", "Caçari", "Caimbé", "Calungá", "Cambará", "Canarinho", "Caranã", 
+        "Cauamé", "Centenário", "Centro", "Cidade Satélite", "Cinturão Verde", 
+        "Distrito Industrial", "Doutor Sílvio Botelho", "Doutor Sílvio Leite", 
+        "Dr. Airton Rocha", "Jardim Caranã", "Jardim Equatorial", "Jardim Floresta", 
+        "Jardim Primavera", "Jardim Tropical", "Jóquei Clube", "Nova Cidade", 
+        "Olímpico", "Operário", "Paraviana", "Pintolândia", "Pricumã", "Raiar do Sol", 
+        "Santa Tereza", "São Bento", "Senador Hélio Campos", "Tancredo Neves"
+    ]
+    
+    adicionados = 0
+    for bairro in bairros:
+        result = await db.execute(select(ZonaEntrega).where(ZonaEntrega.bairro == bairro))
+        if not result.scalar_one_or_none():
+            db.add(ZonaEntrega(bairro=bairro, taxa=10.00, ativo=True))
+            adicionados += 1
+            
+    await db.commit()
+    return {"message": f"{adicionados} bairros de Boa Vista foram adicionados com taxa padrão de R$ 10,00."}
+
 @router.post("", response_model=ZonaEntregaResponse, status_code=status.HTTP_201_CREATED)
 async def create_zona(
     zona: ZonaEntregaCreate,
