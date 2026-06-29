@@ -56,6 +56,56 @@ async def seed_master() -> None:
                 db.add(Produto(**p))
             await db.commit()
 
+        # Seed de banners
+        count_banners = await db.scalar(select(sqlalchemy.func.count()).select_from(Banner))
+        if count_banners == 0:
+            log.info("[DB] Cadastrando banners iniciais de teste...")
+            banners_iniciais = [
+                {
+                    "badge_text": "Drop de primavera ✨",
+                    "title_highlight": "Coleção Primavera:",
+                    "title_main": "Seja Você Mesma!",
+                    "subtitle": "Looks fofos, coquette e cheios de personalidade pra você arrasar em qualquer rolê.",
+                    "image_url": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80",
+                    "button_text": "Ver Looks",
+                    "button_link": "#looks",
+                    "cor_destaque": "#ec4899",
+                    "ativo": True,
+                    "ordem": 0
+                },
+                {
+                    "badge_text": "Novidade 🔥",
+                    "title_highlight": "Inverno 2026:",
+                    "title_main": "Estilo & Conforto",
+                    "subtitle": "Peças exclusivas e quentinhas para você arrasar na estação mais charmosa do ano.",
+                    "image_url": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+                    "button_text": "Comprar Agora",
+                    "button_link": "#produtos",
+                    "cor_destaque": "#3b82f6",
+                    "ativo": True,
+                    "ordem": 1
+                }
+            ]
+            for b in banners_iniciais:
+                db.add(Banner(**b))
+            await db.commit()
+        elif count_banners == 1:
+            log.info("[DB] Cadastrando segundo banner...")
+            b2 = Banner(
+                badge_text="Novidade 🔥",
+                title_highlight="Inverno 2026:",
+                title_main="Estilo & Conforto",
+                subtitle="Peças exclusivas e quentinhas para você arrasar na estação mais charmosa do ano.",
+                image_url="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80",
+                button_text="Comprar Agora",
+                button_link="#produtos",
+                cor_destaque="#3b82f6",
+                ativo=True,
+                ordem=1
+            )
+            db.add(b2)
+            await db.commit()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import asyncio
