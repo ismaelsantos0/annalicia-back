@@ -48,6 +48,7 @@ class Produto(Base):
     estoque = Column(Integer, default=0)
     imagem_url = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
+    destaque = Column(Boolean, default=False)
     data_criacao = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
 
     categoria = relationship("Categoria", back_populates="produtos")
@@ -105,6 +106,8 @@ class Configuracao(Base):
     popup_botao_link = Column(String, nullable=True)
     texto_frete = Column(String, default="Frete grátis acima de R$ 199")
     texto_brinde = Column(String, default="Brinde fofo no pedido")
+    titulo_destaques = Column(String, default="✨ Destaques da Semana")
+    categoria_destaque_id = Column(PG_UUID(as_uuid=True), ForeignKey("categorias.id"), nullable=True)
 
 class ZonaEntrega(Base):
     __tablename__ = "zonas_entrega"

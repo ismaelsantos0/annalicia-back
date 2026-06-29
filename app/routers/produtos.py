@@ -109,3 +109,47 @@ async def update_estoque(
         .where(Produto.id == produto_id)
     )
     return res.scalar_one()
+
+@router.patch("/{produto_id}/destaque", response_model=ProdutoResponse)
+async def toggle_destaque(
+    produto_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso restrito")
+    result = await db.execute(select(Produto).where(Produto.id == produto_id))
+    produto = result.scalar_one_or_none()
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    produto.destaque = not produto.destaque
+    await db.commit()
+    res = await db.execute(
+        select(Produto)
+        .options(selectinload(Produto.categoria))
+        .where(Produto.id == produto_id)
+    )
+    return res.scalar_one()
+
+@router.get("/destaques", response_model=List[ProdutoResponse])
+async def get_destaques(db: AsyncSession = Depends(get_db)):
+    """Retorna produtos em destaque (marcados individualmente ou por categoria destacada)."""
+    from app.models import Configuracao
+    config_result = await db.execute(select(Configuracao).where(Configuracao.id == 1))
+    config = config_result.scalar_one_or_none()
+    
+    query = select(Produto).options(selectinload(Produto.categoria)).where(Produto.is_active == True)
+    
+    if config and config.categoria_destaque_id:
+        from sqlalchemy import or_
+        result = await db.execute(
+            query.where(
+                or_(Produto.destaque == True, Produto.categoria_id == config.categoria_destaque_id)
+            ).order_by(Produto.destaque.desc(), Produto.data_criacao.desc())
+        )
+    else:
+        result = await db.execute(
+            query.where(Produto.destaque == True)
+            .order_by(Produto.data_criacao.desc())
+        )
+    return result.scalars().all()

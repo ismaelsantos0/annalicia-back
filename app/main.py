@@ -120,6 +120,27 @@ async def seed_master() -> None:
         except:
             await db.rollback()
 
+        try:
+            await db.execute(text("ALTER TABLE produtos ADD COLUMN destaque BOOLEAN DEFAULT FALSE"))
+            await db.commit()
+            log.info("[DB] Coluna destaque adicionada em produtos")
+        except:
+            await db.rollback()
+
+        try:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN titulo_destaques VARCHAR DEFAULT '✨ Destaques da Semana'"))
+            await db.commit()
+            log.info("[DB] Coluna titulo_destaques adicionada")
+        except:
+            await db.rollback()
+
+        try:
+            await db.execute(text("ALTER TABLE configuracoes ADD COLUMN categoria_destaque_id UUID REFERENCES categorias(id)"))
+            await db.commit()
+            log.info("[DB] Coluna categoria_destaque_id adicionada")
+        except:
+            await db.rollback()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import asyncio

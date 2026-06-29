@@ -53,12 +53,14 @@ class ProdutoUpdate(BaseModel):
     estoque: Optional[int] = None
     imagem_url: Optional[str] = None
     is_active: Optional[bool] = None
+    destaque: Optional[bool] = None
 
 class ProdutoEstoqueUpdate(BaseModel):
     estoque: int
 
 class ProdutoResponse(ProdutoBase):
     id: UUID
+    destaque: bool = False
     data_criacao: Optional[datetime] = None
     categoria: Optional[CategoriaResponse] = None
 
@@ -163,6 +165,8 @@ class ConfiguracaoResponse(BaseModel):
     popup_botao_link: Optional[str] = None
     texto_frete: Optional[str] = None
     texto_brinde: Optional[str] = None
+    titulo_destaques: Optional[str] = None
+    categoria_destaque_id: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -184,6 +188,8 @@ class ConfiguracaoUpdate(BaseModel):
     popup_botao_link: Optional[str] = None
     texto_frete: Optional[str] = None
     texto_brinde: Optional[str] = None
+    titulo_destaques: Optional[str] = None
+    categoria_destaque_id: Optional[str] = None
 
 class ZonaEntregaBase(BaseModel):
     bairro: str
