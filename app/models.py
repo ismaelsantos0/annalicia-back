@@ -17,6 +17,17 @@ class Usuario(Base):
 
     pedidos = relationship("Pedido", back_populates="usuario")
 
+class Cliente(Base):
+    __tablename__ = "clientes"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    nome = Column(String, nullable=False)
+    whatsapp = Column(String, unique=True, index=True, nullable=False)
+    endereco = Column(String, nullable=False)
+    data_criacao = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+
+    pedidos = relationship("Pedido", back_populates="cliente")
+
 class Produto(Base):
     __tablename__ = "produtos"
 
@@ -32,11 +43,13 @@ class Pedido(Base):
     __tablename__ = "pedidos"
 
     id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    usuario_id = Column(PG_UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=False)
+    cliente_id = Column(PG_UUID(as_uuid=True), ForeignKey("clientes.id"), nullable=False)
+    usuario_id = Column(PG_UUID(as_uuid=True), ForeignKey("usuarios.id"), nullable=True) # admin que gerou, se houver
     status = Column(String, default="pendente") # pendente, pago, enviado, cancelado
     data_criacao = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
     total = Column(Float, default=0.0)
 
+    cliente = relationship("Cliente", back_populates="pedidos")
     usuario = relationship("Usuario", back_populates="pedidos")
     itens = relationship("ItemPedido", back_populates="pedido", cascade="all, delete-orphan")
 

@@ -49,18 +49,35 @@ class ItemPedidoResponse(ItemPedidoBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ClienteBase(BaseModel):
+    nome: str
+    whatsapp: str
+    endereco: str
+
+class ClienteResponse(ClienteBase):
+    id: UUID
+    data_criacao: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
 class PedidoBase(BaseModel):
     pass
 
 class PedidoCreate(PedidoBase):
+    cliente_nome: str
+    cliente_whatsapp: str
+    cliente_endereco: str
     itens: List[ItemPedidoCreate]
 
 class PedidoResponse(PedidoBase):
     id: UUID
-    usuario_id: UUID
+    cliente_id: UUID
+    usuario_id: Optional[UUID] = None
     status: str
     data_criacao: datetime
     total: float
     itens: List[ItemPedidoResponse]
+    cliente: ClienteResponse
 
     model_config = ConfigDict(from_attributes=True)
+

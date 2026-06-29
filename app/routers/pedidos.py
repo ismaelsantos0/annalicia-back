@@ -3,10 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from typing import List
-import uuid
 
 from app.database import get_db
-from app.models import Pedido, ItemPedido, Produto, Usuario
+from app.models import Pedido, ItemPedido, Produto, Usuario, Cliente
 from app.schemas import PedidoCreate, PedidoResponse
 from app.dependencies import get_current_user
 
@@ -14,7 +13,7 @@ router = APIRouter(prefix="/pedidos", tags=["Pedidos"])
 
 @router.get("", response_model=List[PedidoResponse])
 async def list_pedidos(db: AsyncSession = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
-    query = select(Pedido).options(selectinload(Pedido.itens))
+    query = select(Pedido).options(selectinload(Pedido.itens), selectinload(Pedido.cliente))
     if current_user.role != "master":
         query = query.where(Pedido.usuario_id == current_user.id)
         
@@ -24,10 +23,28 @@ async def list_pedidos(db: AsyncSession = Depends(get_db), current_user: Usuario
 @router.post("", response_model=PedidoResponse, status_code=status.HTTP_201_CREATED)
 async def create_pedido(
     pedido: PedidoCreate,
-    db: AsyncSession = Depends(get_db),
-    current_user: Usuario = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db)
 ):
-    novo_pedido = Pedido(usuario_id=current_user.id, total=0.0)
+    # 1. Buscar ou criar cliente
+    result = await db.execute(select(Cliente).where(Cliente.whatsapp == pedido.cliente_whatsapp))
+    cliente = result.scalar_one_or_none()
+    
+    if not cliente:
+        cliente = Cliente(
+            nome=pedido.cliente_nome,
+            whatsapp=pedido.cliente_whatsapp,
+            endereco=pedido.cliente_endereco
+        )
+        db.add(cliente)
+        await db.flush()
+    else:
+        # Atualiza dados se necessário
+        cliente.nome = pedido.cliente_nome
+        cliente.endereco = pedido.cliente_endereco
+        await db.flush()
+
+    # 2. Criar pedido
+    novo_pedido = Pedido(cliente_id=cliente.id, total=0.0)
     db.add(novo_pedido)
     await db.flush()
     
@@ -58,5 +75,5 @@ async def create_pedido(
     await db.commit()
     
     # Reload for response
-    result = await db.execute(select(Pedido).options(selectinload(Pedido.itens)).where(Pedido.id == novo_pedido.id))
+    result = await db.execute(select(Pedido).options(selectinload(Pedido.itens), selectinload(Pedido.cliente)).where(Pedido.id == novo_pedido.id))
     return result.scalar_one()
