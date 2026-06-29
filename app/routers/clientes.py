@@ -12,6 +12,26 @@ from app.services.whatsapp import whatsapp_service
 
 router = APIRouter(prefix="/clientes", tags=["Clientes"])
 
+from app.schemas import ClienteInscrever
+
+@router.post("/inscrever")
+async def inscrever_cliente(dados: ClienteInscrever, db: AsyncSession = Depends(get_db)):
+    # Check if number already exists
+    result = await db.execute(select(Cliente).where(Cliente.whatsapp == dados.whatsapp))
+    existente = result.scalar_one_or_none()
+    
+    if existente:
+        return {"message": "Número já cadastrado para notificações."}
+        
+    novo_cliente = Cliente(
+        nome=dados.nome,
+        whatsapp=dados.whatsapp,
+        endereco="Inscrito via bolha de notificações"
+    )
+    db.add(novo_cliente)
+    await db.commit()
+    return {"message": "Inscrição realizada com sucesso!"}
+
 @router.get("", response_model=List[ClienteResponse])
 async def list_clientes(db: AsyncSession = Depends(get_db), current_user: Usuario = Depends(get_current_user)):
     if current_user.role != "master":

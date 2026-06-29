@@ -90,6 +90,10 @@ class ClienteResponse(ClienteBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ClienteInscrever(BaseModel):
+    nome: str
+    whatsapp: str
+
 class DisparoCreate(BaseModel):
     mensagem: str
 
