@@ -171,6 +171,8 @@ class ConfiguracaoResponse(BaseModel):
     texto_brinde: Optional[str] = None
     titulo_destaques: Optional[str] = None
     categoria_destaque_id: Optional[str] = None
+    nome_loja: Optional[str] = "Annalicia Modas"
+    logo_url: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -194,6 +196,8 @@ class ConfiguracaoUpdate(BaseModel):
     texto_brinde: Optional[str] = None
     titulo_destaques: Optional[str] = None
     categoria_destaque_id: Optional[str] = None
+    nome_loja: Optional[str] = None
+    logo_url: Optional[str] = None
 
 class ZonaEntregaBase(BaseModel):
     bairro: str

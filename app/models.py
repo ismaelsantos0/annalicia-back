@@ -108,6 +108,8 @@ class Configuracao(Base):
     texto_brinde = Column(String, default="Brinde fofo no pedido")
     titulo_destaques = Column(String, default="✨ Destaques da Semana")
     categoria_destaque_id = Column(PG_UUID(as_uuid=True), ForeignKey("categorias.id"), nullable=True)
+    nome_loja = Column(String, default="Annalicia Modas")
+    logo_url = Column(String, nullable=True)
 
 class ZonaEntrega(Base):
     __tablename__ = "zonas_entrega"
