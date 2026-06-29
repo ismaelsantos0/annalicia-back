@@ -6,7 +6,7 @@ from typing import List
 
 from app.database import get_db
 from app.models import Pedido, ItemPedido, Produto, Usuario, Cliente, Configuracao
-from app.schemas import PedidoCreate, PedidoResponse
+from app.schemas import PedidoCreate, PedidoResponse, PedidoStatusUpdate
 from app.dependencies import get_current_user
 from app.services.whatsapp import whatsapp_service
 from app.utils.pix import generate_pix_brcode
@@ -160,3 +160,55 @@ async def create_pedido(
     background_tasks.add_task(whatsapp_service.send_text_message, cliente.whatsapp, msg)
 
     return pedido_completo
+
+@router.patch("/{pedido_id}/status", response_model=PedidoResponse)
+async def update_pedido_status(
+    pedido_id: str,
+    update_data: PedidoStatusUpdate,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user)
+):
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso restrito")
+
+    result = await db.execute(select(Pedido).options(selectinload(Pedido.itens), selectinload(Pedido.cliente)).where(Pedido.id == pedido_id))
+    pedido = result.scalar_one_or_none()
+    
+    if not pedido:
+        raise HTTPException(status_code=404, detail="Pedido não encontrado")
+
+    old_status = pedido.status
+    new_status = update_data.status
+
+    if old_status in ["cancelado", "entregue"]:
+        raise HTTPException(status_code=400, detail=f"Não é possível alterar um pedido que já está {old_status}")
+
+    pedido.status = new_status
+
+    # Se foi cancelado, devolve ao estoque
+    if new_status == "cancelado":
+        for item in pedido.itens:
+            prod_result = await db.execute(select(Produto).where(Produto.id == item.produto_id))
+            produto = prod_result.scalar_one_or_none()
+            if produto:
+                produto.estoque += item.quantidade
+                
+    await db.commit()
+
+    # Enviar notificação pelo WhatsApp
+    cliente = pedido.cliente
+    if cliente and new_status in ["confirmado", "enviado", "entregue"]:
+        pedido_num_str = str(pedido.numero).zfill(4) if pedido.numero else str(pedido.id)[:8]
+        msg = f"🛍️ *Olá {cliente.nome.split()[0]}!*\n\n"
+        
+        if new_status == "confirmado":
+            msg += f"Recebemos o seu pagamento e o seu pedido #{pedido_num_str} foi *confirmado*! 🎉\nJá estamos separando tudo com muito carinho para você."
+        elif new_status == "enviado":
+            msg += f"O seu pedido #{pedido_num_str} acabou de ser *enviado*! 🚀\nFique de olho, em breve chegará até você."
+        elif new_status == "entregue":
+            msg += f"O seu pedido #{pedido_num_str} foi entregue! 💖\nEsperamos que você ame cada detalhe. Se puder, compartilha com a gente marcando o nosso Instagram!"
+            
+        background_tasks.add_task(whatsapp_service.send_text_message, cliente.whatsapp, msg)
+
+    return pedido

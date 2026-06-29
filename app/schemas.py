@@ -100,6 +100,9 @@ class PedidoCreate(PedidoBase):
     taxa_entrega: float = 0.0
     itens: List[ItemPedidoCreate]
 
+class PedidoStatusUpdate(BaseModel):
+    status: str
+
 class PedidoResponse(PedidoBase):
     id: UUID
     numero: Optional[int] = None
