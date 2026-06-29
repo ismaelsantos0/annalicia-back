@@ -20,7 +20,7 @@ def crc16(data: str) -> str:
             crc &= 0xFFFF
     return f"{crc:04X}"
 
-def generate_pix_brcode(chave: str, nome: str, cidade: str, valor: float, txid: str = "***") -> str:
+def generate_pix_brcode(chave: str, tipo: str, nome: str, cidade: str, valor: float, txid: str = "***") -> str:
     """
     Gera um código PIX Copia e Cola estático (BR Code EMVCo).
     """
@@ -32,6 +32,16 @@ def generate_pix_brcode(chave: str, nome: str, cidade: str, valor: float, txid: 
     
     # Tratar chave pix de acordo com o tipo
     chave = chave.strip()
+    tipo = (tipo or "").lower()
+    
+    if tipo in ("cpf", "cnpj"):
+        chave = re.sub(r'\D', '', chave)
+    elif tipo == "telefone":
+        chave = re.sub(r'\D', '', chave)
+        if len(chave) == 10 or len(chave) == 11:
+            chave = f"+55{chave}"
+        elif len(chave) > 0 and not chave.startswith("+"):
+            chave = f"+{chave}"
     
     gui = format_len("00", "br.gov.bcb.pix")
     key = format_len("01", chave)
@@ -54,7 +64,11 @@ def generate_pix_brcode(chave: str, nome: str, cidade: str, valor: float, txid: 
     payload += format_len("60", cidade)
     
     # Aditional Data Field Template
-    tx_field = format_len("05", txid[:25] or "***")
+    # Some banks restrict txid characters to alphanumeric only. We use *** if empty or invalid.
+    tx_val = re.sub(r'[^A-Za-z0-9]', '', txid)
+    if not tx_val:
+        tx_val = "***"
+    tx_field = format_len("05", tx_val[:25])
     payload += format_len("62", tx_field)
     
     # Checksum (CRC16)

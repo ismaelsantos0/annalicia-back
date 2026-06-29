@@ -88,6 +88,7 @@ async def create_pedido(
     if config and config.pix_chave and config.pix_nome_recebedor and config.pix_cidade_recebedor:
         br_code = generate_pix_brcode(
             chave=config.pix_chave,
+            tipo=config.pix_tipo,
             nome=config.pix_nome_recebedor,
             cidade=config.pix_cidade_recebedor,
             valor=total,
