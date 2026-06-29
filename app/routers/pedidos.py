@@ -47,7 +47,13 @@ async def create_pedido(
         await db.flush()
 
     # 2. Criar pedido
-    novo_pedido = Pedido(cliente_id=cliente.id, total=0.0)
+    novo_pedido = Pedido(
+        cliente_id=cliente.id, 
+        total=0.0,
+        tipo_entrega=pedido.tipo_entrega,
+        bairro_entrega=pedido.bairro_entrega,
+        taxa_entrega=pedido.taxa_entrega
+    )
     db.add(novo_pedido)
     await db.flush()
     
@@ -74,6 +80,7 @@ async def create_pedido(
         db.add(novo_item)
         total += (produto_db.preco * item.quantidade)
         
+    total += pedido.taxa_entrega
     novo_pedido.total = total
     await db.commit()
     
@@ -102,10 +109,24 @@ async def create_pedido(
 
     msg = f"🛍️ *Olá {cliente.nome.split()[0]}! Seu pedido foi gerado com sucesso.*\n\n"
     msg += f"📦 *Pedido:* #{str(novo_pedido.id)[:8]}\n"
-    msg += f"💰 *Total:* R$ {total:.2f}\n\n"
+    msg += f"💰 *Total:* R$ {total:.2f}\n"
+    
+    if pedido.tipo_entrega == "entrega":
+        if pedido.taxa_entrega > 0:
+            msg += f"🛵 *Entrega:* + R$ {pedido.taxa_entrega:.2f} ({pedido.bairro_entrega})\n"
+        else:
+            msg += f"🛵 *Entrega:* A combinar ({pedido.bairro_entrega})\n"
+        msg += f"📍 *Endereço:* {cliente.endereco}\n\n"
+    else:
+        msg += f"🏪 *Retirada:* Na Loja\n\n"
+
     msg += f"Para confirmar e validarmos a sua compra para separação, realize o pagamento via *PIX Copia e Cola* abaixo:\n\n"
     msg += f"```{br_code}```\n\n"
-    msg += f"Assim que o pagamento for efetuado, já autorizamos o seu pacote para envio! 💖"
+    
+    if pedido.tipo_entrega == "retirada":
+        msg += f"Assim que o pagamento for efetuado, enviaremos o endereço da loja para a retirada do seu pacote! 💖"
+    else:
+        msg += f"Assim que o pagamento for efetuado, já autorizamos o seu pacote para envio! 💖"
     
     # Enviar mensagem em background
     background_tasks.add_task(whatsapp_service.send_text_message, cliente.whatsapp, msg)

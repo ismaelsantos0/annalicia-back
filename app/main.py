@@ -15,7 +15,7 @@ from app.database import AsyncSessionLocal, engine, Base
 from app.models import Usuario, Produto
 from app.security import hash_password
 
-from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias, configuracoes, whatsapp
+from app.routers import auth, usuarios, produtos, pedidos, clientes, categorias, configuracoes, whatsapp, zonas
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s")
 log = logging.getLogger(__name__)
@@ -106,6 +106,13 @@ async def lifespan(app: FastAPI):
     except Exception:
         pass
 
+    try:
+        async with AsyncSessionLocal() as db:
+            await db.execute(text("ALTER TABLE pedidos ADD COLUMN tipo_entrega VARCHAR DEFAULT 'retirada', ADD COLUMN taxa_entrega FLOAT DEFAULT 0.0, ADD COLUMN bairro_entrega VARCHAR"))
+            await db.commit()
+    except Exception:
+        pass
+
     await seed_master()
     yield
 
@@ -146,6 +153,7 @@ app.include_router(clientes.router)
 app.include_router(categorias.router)
 app.include_router(configuracoes.router)
 app.include_router(whatsapp.router)
+app.include_router(zonas.router)
 
 @app.get("/health", tags=["Sistema"])
 async def health_check():

@@ -59,6 +59,10 @@ class Pedido(Base):
     status = Column(String, default="pendente") # pendente, pago, enviado, cancelado
     data_criacao = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
     total = Column(Float, default=0.0)
+    
+    tipo_entrega = Column(String, default="retirada") # retirada ou entrega
+    taxa_entrega = Column(Float, default=0.0)
+    bairro_entrega = Column(String, nullable=True)
 
     cliente = relationship("Cliente", back_populates="pedidos")
     usuario = relationship("Usuario", back_populates="pedidos")
@@ -86,3 +90,11 @@ class Configuracao(Base):
     pix_tipo = Column(String, nullable=True) # cpf, cnpj, email, telefone, aleatoria
     pix_nome_recebedor = Column(String, nullable=True)
     pix_cidade_recebedor = Column(String, nullable=True)
+
+class ZonaEntrega(Base):
+    __tablename__ = "zonas_entrega"
+
+    id = Column(PG_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    bairro = Column(String, unique=True, nullable=False, index=True)
+    taxa = Column(Float, default=0.0)
+    ativo = Column(Boolean, default=True)

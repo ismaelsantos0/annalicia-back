@@ -83,6 +83,9 @@ class PedidoCreate(PedidoBase):
     cliente_nome: str
     cliente_whatsapp: str
     cliente_endereco: str
+    tipo_entrega: str = "retirada"
+    bairro_entrega: Optional[str] = None
+    taxa_entrega: float = 0.0
     itens: List[ItemPedidoCreate]
 
 class PedidoResponse(PedidoBase):
@@ -92,6 +95,9 @@ class PedidoResponse(PedidoBase):
     status: str
     data_criacao: datetime
     total: float
+    tipo_entrega: str
+    taxa_entrega: float
+    bairro_entrega: Optional[str] = None
     itens: List[ItemPedidoResponse]
     cliente: ClienteResponse
     pix_copia_cola: Optional[str] = None
@@ -117,4 +123,21 @@ class ConfiguracaoUpdate(BaseModel):
 
 class ConfiguracaoResponse(ConfiguracaoBase):
     id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class ZonaEntregaBase(BaseModel):
+    bairro: str
+    taxa: float
+    ativo: bool = True
+
+class ZonaEntregaCreate(ZonaEntregaBase):
+    pass
+
+class ZonaEntregaUpdate(BaseModel):
+    bairro: Optional[str] = None
+    taxa: Optional[float] = None
+    ativo: Optional[bool] = None
+
+class ZonaEntregaResponse(ZonaEntregaBase):
+    id: UUID
     model_config = ConfigDict(from_attributes=True)
