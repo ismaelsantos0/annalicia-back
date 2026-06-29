@@ -11,12 +11,12 @@ from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/categorias", tags=["Categorias"])
 
-@router.get("/", response_model=List[CategoriaResponse])
+@router.get("", response_model=List[CategoriaResponse])
 async def listar_categorias(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Categoria).order_by(Categoria.nome))
     return result.scalars().all()
 
-@router.post("/", response_model=CategoriaResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CategoriaResponse, status_code=status.HTTP_201_CREATED)
 async def criar_categoria(
     categoria: CategoriaCreate,
     db: AsyncSession = Depends(get_db),
