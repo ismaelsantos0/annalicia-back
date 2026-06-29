@@ -8,10 +8,30 @@ from app.database import get_db
 from app.models import Produto, Usuario
 from app.schemas import ProdutoCreate, ProdutoResponse, ProdutoEstoqueUpdate
 from app.dependencies import get_current_user
+from pydantic import BaseModel
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
 from sqlalchemy.orm import selectinload
+
+class InstagramImportRequest(BaseModel):
+    url: str
+
+@router.post("/import-instagram")
+async def import_from_instagram(
+    body: InstagramImportRequest,
+    current_user: Usuario = Depends(get_current_user)
+):
+    if current_user.role != "master":
+        raise HTTPException(status_code=403, detail="Acesso restrito")
+    try:
+        from app.services.instagram import fetch_instagram_post
+        data = fetch_instagram_post(body.url)
+        return data
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Não foi possível buscar o post. Verifique se o link é de um perfil públíco. Detalhe: {str(e)}")
 
 @router.get("", response_model=List[ProdutoResponse])
 async def list_produtos(db: AsyncSession = Depends(get_db)):

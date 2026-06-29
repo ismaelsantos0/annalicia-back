@@ -13,3 +13,5 @@ httpx==0.27.0
 apscheduler==3.10.4
 python-dotenv==1.0.1
 python-dateutil==2.9.0.post0
+instaloader==4.14
+requests==2.32.3
